@@ -10,6 +10,14 @@ class GoogleNewsFeedParser:
         self.data = []
 
     def parse_google_news_feed(self, query):
+        """
+        Function to retrieve and parse Google News RSS feeds.
+
+        Parameters
+        ----------
+        limit: Specifies limit on the number of entries in the feed to retrieve 
+        """
+
         url = f'https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en'
         try:
             feed = feedparser.parse(url)
@@ -35,6 +43,16 @@ class GoogleNewsFeedParser:
             print(f"Error parsing the feed: {e}")
 
     def save_to_firestore(self, category, news_items):
+        """
+        Function to save feed entries retrieved in Firestore
+
+        Parameters
+        ----------
+        category: Specifies category of news to retrieve eg. ['Business', 'Technology', 'Sports', 'Markets',
+                  'Politics', 'Entertainment', 'India', 'World'].
+        news_items: Used to pass GoogleNewsFeedParser's data attribute.
+
+        """
         db = firestore.client()
         collection_ref = db.collection(category)
         outlet_count_ref = db.collection('outlet_counts').document(category)
@@ -66,6 +84,7 @@ if __name__ == "__main__":
     parser = GoogleNewsFeedParser(25)
     categories = ['Business', 'Technology', 'Sports', 'Markets',
                   'Politics', 'Entertainment', 'India', 'World']
+
     for category in categories:
         parser.parse_google_news_feed(category)
         parser.save_to_firestore(category, news_items=parser.data)
